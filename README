@@ -1,0 +1,24 @@
+termin 19.04
+
+Sprawozdanie:
+	1. krótki opis problemu
+	2. uwagi o algorytmie (źródło)
+	3. przykład działania algorytmu
+	4. źródło danycg, wyniki obliczeń i ich analiza
+	5. kod źródłowy
+	6. opis uruchomienia, przykładowe dane testowe
+
+Problem (Rozwóz kontenerów):
+	Na placu znajduje sie pewna liczba kontenerów, które należy rozwieść samochodem do odbiorców. Samochód jednocześnie zabiera 3 kontenery. Zaplanować trasy samochodu, tak aby liczba przejechanych kilometrów była minimalna. (Jak rozwiązać ten problem, gdy mamy do dyspozycji kilka samochodów?)
+
+1. Uściślić i rozbudować opis
+2. Jakie niezbędne dane należy dostarczyć
+3. Specyfikacja (dane, wyniki - wprowadzić nazwy zmiennych)
+4. Model matematyczny
+5. Podać niewielki przykład i jego rozwiązanie
+6. Agorytmy:
+	a) konstrukcyjne
+	b) popraw
+7. Program
+8. Obliczenia testowe
+9. Prezentacja multimedialna
