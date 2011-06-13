@@ -1,3 +1,4 @@
+\documentclass{beamer}
 \usepackage[utf8]{inputenc}
 \usepackage[]{polski}
 \mode<beamer>{
@@ -10,9 +11,9 @@
 \usetheme{default}
 }
 
-\title{Metaprogramowanie}
-\subtitle{Techniki pisania makr}
-\author{Aleksander Balicki}
+\title{Capacitated Vehicular Routing Problem}
+\subtitle{Problem rozwożenia kontenerów}
+\author{Aleksander Balicki, Łukasz Zapart}
 \institute{Instytut Informatyki}
 \date{\today}
 
@@ -26,542 +27,46 @@
 \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Najczęściej popełniane błędy}
-\subsection{Variable capture} % (fold)
-\label{sub:Variable capture}
-\begin{frame}{}
-\tableofcontents[currentsection,hideallsubsections]
-\end{frame}
 
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (defmacro for ((var start stop) &body body)
-  `(do ((,var ,start (1+ ,var))
-          (limit ,stop))
-         ((> ,var limit))
-	      ,@body))
-\end{verbatim}
-\pause
-\begin{verbatim}
-> (for (x 1 5)
-    (princ x))
-12345
-NIL
-\end{verbatim}
-\pause
-Tu przechwytujemy zmienną limit. Jeżeli była ona użyta w kontekscie wywołania tego makra, to nie zadziala ono w zamierzony sposob.
-\end{frame}
+\section{Specyfikacja problemu}
 
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (for (limit 1 5)
-    (princ limit))
-\end{verbatim}
-
-Co robi to polecenie?
-
-\pause
-
-Generuje Matrix.
-
-\pause
-
-Zobaczmy co się dzieje po rozwinięciu tego makra:
-\begin{verbatim}
-> (do ((limit 1 (1+ limit))
-    (limit 5))
-      ((> limit limit))
-        (princ limit))
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (let ((limit 5))
-    (for (i 1 10)
-      (when (> i limit)
-        (princ i))))
-NIL
-\end{verbatim}
-\pause
-Tutaj przykład jak nasz błąd nie daje o sobie znać, po prostu cicho zwraca NIL.
-Jest bardzo trudno znaleść taki błąd, jeśli jest zaszyty głęboko w infrastrukturze makr naszego programu.
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (defun fn (x) (+ x 1))
-FN
-> (defmacro mac (x) `(fn ,x))
-MAC
-> (mac 10)
-11
-> (labels ((fn (y) (- y 1)))
-    (mac 10))
-9
-\end{verbatim}
-\pause
-Zaskakująco funkcję można też scapture'ować, tak jak każdy symbol.
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (defmacro for ((var start stop) &body body)
-    (let ((gstop (gensym)))
-        `(do ((,var ,start (1+ ,var))
-                  (,gstop ,stop))
-                 ((> ,var ,gstop))
-	                ,@body)))
-\end{verbatim}
-\pause
-To jest poprawna wersja z użyciem funkcji gensym.
-\pause
-\begin{verbatim}
-> (setq x (gensym))
-#:G48
-> (setq *gensym-counter* 48 y (gensym))
-#:G48
-> (eq x y)
-NIL
-\end{verbatim}
+\begin{frame}
+\subsection{Oryginalna specyfikacja}
+\frametitle{Oryginalna specyfikacja}
+	Na placu znajduje sie pewna liczba kontenerów, które należy rozwieść samochodem do odbiorców. Samochód jednocześnie zabiera 3 kontenery. Zaplanować trasy samochodu, tak aby liczba przejechanych kilometrów była minimalna. (Jak rozwiązać ten problem, gdy mamy do dyspozycji kilka samochodów?)
 \end{frame}
 
 \begin{frame}
-Włożenie makra do osobnej paczki - wtedy zmienne nie skolidują. Nie jest to zalecany sposób, bo makra specyficzne dla danego projektu wylądują w innej paczce.
+\subsection{Uściślenie specyfikacji}
+\frametitle{Uściślenie specyfikacji}
+	Na $n$-wierzchołkowym grafie z wagami na krawędziach i wyróżnionym wierzchołkiem $S$, musimy znaleść $k$ prawie rozłącznych cykli (wszystkie spotykają się w wierzchołku $S$), pokrywających cały graf.
+
+	$n$ - liczba odbiorców
+	$k$ - liczba ciężarówek
+
+	Wymaga to założenia, że:
+	\begin{itemize}
+		\item żaden pakunek nie będzie podzielny,
+		\item każdy pakunek ma objętość mniejszą niż dowolna ciężarówka.
+	\end{itemize}
 \end{frame}
 
-% subsection Variable capture (end)
-\subsection{Wielokrotna ewaluacja} % (fold)
-\label{sub:Wielokrotna ewaluacja}
-\begin{frame}[fragile]{}
-\begin{verbatim}
-> (let ((x 2))
-    (for (i 1 (incf x))
-          (princ i)))
-12345678910111213...
-\end{verbatim}
-\pause
-Ilość ewaluacji wyrażenia ma znaczenie, nie licząc nieefektywności, wyrażenie może wywoływać skutki uboczne, takie jak zwiększenie wartości zmiennej.
+\section{Model matematyczny}
+\subsection{Dane wejściowe}
+\subsection{Otrzymany wynik}
+\section{Niewielki Przyklad}
+\section{Algorytm}
+\begin{frame}
+\subsection{Opis algorytmu}
+\frametitle{Opis algorytmu}
 \end{frame}
-
-% subsection Wielokrotna ewaluacja (end)
-\subsection{Kolejność ewaluacji} % (fold)
-\label{sub:Kolejność ewaluacji}
-
-\begin{frame}[fragile]{}
-W Common Lispie przyjęto konwencje ewaluacji argumentów od lewej do prawej, dobrze jest zachowywać tą konwencję.
-\begin{verbatim}
-> (setq x 10)
-10
-> (+ (setq x 3) x)
-6
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Zła kolejność ewaluacji:
-\begin{verbatim}
-(defmacro for ((var start stop) &body body)
-	(let ((gstop (gensym)))
-       		`(do ((,gstop ,stop)
-                 	(,var ,start (1+ ,var)))
-                   	((> ,var ,gstop))
-		        	,@body)))
-\end{verbatim}
-\pause
-\begin{verbatim}
-> (let ((x 1))
-    (for (i x (setq x 13))
-         (princ i)))
-13
-NIL
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Dobra kolejność ewaluacji:
-\begin{verbatim}
-(defmacro for ((var start stop) &body body)
-  (let ((gstop (gensym)))
-       `(do ((,var ,start (1+ ,var))
-                    (,gstop ,stop))
-                   ((> ,var ,gstop))
-		            ,@body)))
-\end{verbatim}
-\pause
-\begin{verbatim}
-> (let ((x 1))
-    (for (i x (setq x 13))
-         (princ i)))
-12345678910111213
-NIL
-\end{verbatim}
-\end{frame}
-
-% subsection Kolejność ewaluacji (end)
-\subsection{Skutki uboczne} % (fold)
-\label{sub:Skutki uboczne}
-\begin{frame}[fragile]{}
-Wywoływanie skutków ubocznych w trakcie expandowania makra
-\begin{verbatim}
-(defmacro nil! (x)
-  (incf *nil!s*)
-    `(setf ,x nil))
-\end{verbatim}
-\pause
-jest niezalecane, bo nie wiadomo ile razy makro będzie expandowane. Zmienna *nil!s* nie będzie miała zapisanej ilości użyć makra, tylko ilości jego expansji.
-\end{frame}
-
-% subsection Skutki uboczne (end)
-\subsection{Rekursja} % (fold)
-\label{sub:Rekursja}
-\begin{frame}[fragile]{}
-Można wywoływać makra rekurencyjnie, oby tylko expand kiedys się zakończył. Zły przykład:
-\begin{verbatim}
-(defmacro nthb (n lst)
-  `(if (= ,n 0)
-         (car ,lst)
-	        (nthb (- ,n 1) (cdr ,lst))))
-\end{verbatim}
-\pause
-Expanduje się do:
-\pause
-\begin{verbatim}
-(if (= x 0)
-    (car y)
-        (if (= (- x 1) 0)
-	        (car (cdr y))
-		        (nthb (- (- x 1) 1) (cdr (cdr y)))))
-\end{verbatim}
-\end{frame}
-
-
-\begin{frame}[fragile]{}
-Można to rozwiązać wywołując funkcję rekurencyjnie z makra
-\begin{verbatim}
-(defmacro nthd (n lst)
-  `(nth-fn ,n ,lst))
-(defun nth-fn (n lst)
-  (if (= n 0)
-        (car lst)
-	      (nth-fn (- n 1) (cdr lst))))
-\end{verbatim}
-\pause
-Jeśli rekursja jest ogonowa, to można to zamienić na while'a 
-\end{frame}
-
-\begin{frame}[fragile]{}
-Przykład or-a z rekurencyjnym wywołaniem makra
-\begin{verbatim}
-(defmacro orb (&rest args)
-  (if (null args)
-      nil
-      (let ((sym (gensym)))
-        `(let ((,sym ,(car args)))
-           (if ,sym
-               ,sym
-               (orb ,@(cdr args)))))))
-\end{verbatim}
-\end{frame}
-
-% subsection Rekursja (end)
-\section{Obliczenia w trakcie kompilacji}
-\begin{frame}{}
-\tableofcontents[currentsection,hideallsubsections]
-\end{frame}
-\subsection{Proste przykłady}
-\begin{frame}[fragile]{}
-Proste przykłady:
-\begin{verbatim}
-(defmacro avg (&rest args)
-  `(/ (+ ,@args) ,(length args)))
-
-> (avg pi 4 5)
-4.047...
-\end{verbatim}
-\pause
-Liczenie długości listy argumentów w czasie kompilacji.
-\pause
-Robimy pracę, którą za nas powinien wykonywać jakiś statyczny optymalizator kodu w kompilatorze.
-\end{frame}
-
-\subsection{Krzywe Beziera}
-\begin{frame}{}
-Ale nie wszystkie rzeczy kompilator potrafi zoptymalizować.
-Skomplikowany przypadek:
-
-\begin{definition}
-A Bezier curve is defined in terms of four points—two endpoints and two
-control points. When we are working in two dimensions, these points define
-parametric equations for the x and y coordinates of points on the curve. If the
-two endpoints are $(x_0 , y_0 )$ and $(x_3 , y_3 )$ and the two control points are $(x_1 , y_1)$ and $(x_2, y_2)$,
-then the equations defining points on the curve are:\\
-             $x = (x^3 - 3x^2 + 3x^1 - x^0 )u^3 + (3x^2 - 6x^1 + 3x^0 )u^2 + (3x^1 - 3x^0 )u + x^0$\\
-	     $y = (y^3 - 3y^2 + 3y^1 - y^0 )u^3 + (3y^2 - 6y^1 + 3y^0 )u^2 + (3y^1 - 3y^0 )u + y^0$\\
-	     for $0 < u < 1$
-\end{definition}
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-(defconstant *segs* 20)
-(defconstant *du*   (/ 1.0 *segs*))
-(defconstant *pts* (make-array (list (1+ *segs*) 2)))
-(defmacro genbez (x0 y0 x1 y1 x2 y2 x3 y3)
-  (with-gensyms (gx0 gx1 gy0 gy1 gx3 gy3)
-    `(let ((,gx0 ,x0) (,gy0 ,y0)
-           (,gx1 ,x1) (,gy1 ,y1)
-           (,gx3 ,x3) (,gy3 ,y3))
-       (let ((cx (* (- ,gx1 ,gx0) 3))
-             (cy (* (- ,gy1 ,gy0) 3))
-             (px (* (- ,x2 ,gx1) 3))
-             (py (* (- ,y2 ,gy1) 3)))
-         (let ((bx (- px cx))
-               (by (- py cy))
-               (ax (- ,gx3 px ,gx0))
-               (ay (- ,gy3 py ,gy0)))
-	 *cośtam cośtam*
-\end{verbatim}
-\end{frame}
-
-\section{Makra anaforyczne}
-\begin{frame}{}
-\tableofcontents[currentsection,hideallsubsections]
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-(let ((result (big-long-calculation)))
-  (if result
-        (foo result)))
-\end{verbatim}
-\pause
-Czy nie byłoby łatwiej napisać:
-\begin{verbatim}
-(if (big-long-calculation)
-    (foo it))
-\end{verbatim}
-Anaforyczne makra to umożliwiają.
-\end{frame}
-\subsection{aif, awhile}
-\begin{frame}[fragile]{}
-\begin{verbatim}
-(defmacro aif (test-form then-form &optional else-form)
-  `(let ((it ,test-form))
-       (if it ,then-form ,else-form)))
-\end{verbatim}
-\pause
-Można analogicznie napisać awhile, awhen, acond...
-\pause
-\begin{verbatim}
-(defmacro aand (&rest args)
-  (cond ((null args) t)
-          ((null (cdr args)) (car args))
-	          (t `(aif ,(car args) (aand ,@(cdr args))))))
-\end{verbatim}
-\pause
-Tu lekka modyfikacja sprawia, że it zawsze przyjmuje wartość wcześniej sprawdzanego argumentu.
-\end{frame}
-
-\subsection{Rekurencyjna lambda}
-\begin{frame}[fragile]{}
-Rekurencyjna lambda:
-\begin{verbatim}
-(defmacro alambda (parms &body body)
-  `(labels ((self ,parms ,@body))
-       #'self))
-
-(alambda (x) (if (= x 0) 1 (* x (self (1- x)))))
-\end{verbatim}
-\end{frame}
-
-\section{Makra zwracające funkcje}
-\begin{frame}{}
-\tableofcontents[currentsection,hideallsubsections]
-\end{frame}
-
-\subsection{Rekursja na listach}
-\begin{frame}[fragile]{}
-Rekursja na listach the old fashion way:
-\begin{verbatim}
-(defun our-every (fn lst)
-  (if (null lst)
-        t
-	(and (funcall fn (car lst))
-		(our-every fn (cdr lst)))))
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Rekursja na listach with a slightly better approach:
-\begin{verbatim}
-(defun lrec (rec &optional base)
-  (labels ((self (lst)
-             (if (null lst)
-                 (if (functionp base)
-                     (funcall base)
-                     base)
-                 (funcall rec (car lst)
-                              #'(lambda ()
-                                  (self (cdr lst)))))))
-    #'self))
-
-(lrec #'(lambda (x f) (and (oddp x) (funcall f)))
-      t)
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-The new macro way:
-\begin{verbatim}
-(defmacro alrec (rec &optional base)
-    (let ((gfn (gensym)))
-        `(lrec #'(lambda (it ,gfn)
-	               (symbol-macrolet ((rec (funcall ,gfn)))
-		                        ,rec))
-	           ,base)))
-
-(defmacro on-cdrs (rec base &rest lsts)
-  `(funcall (alrec ,rec #'(lambda () ,base)) ,@lsts))
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Przykłady on-cdrs:
-\begin{verbatim}
-(defun our-copy-list (lst)
-  (on-cdrs (cons it rec) nil lst))
-(defun our-remove-duplicates (lst)
-  (on-cdrs (adjoin it rec) nil lst))
-(defun our-find-if (fn lst)
-  (on-cdrs (if (funcall fn it) it rec) nil lst))
-(defun our-some (fn lst)
-  (on-cdrs (or (funcall fn it) rec) nil lst))
-\end{verbatim}
-Analogicznie można zdefiniować rekursory na drzewach.
-\end{frame}
-
-\subsection{Leniwa ewaluacja}
-\begin{frame}[fragile]{}
-Leniwą ewaluację uzyskujemy w lispie przez użycie obiektow typu delay. Scheme ma wbudowany system obsługujący delaye.
-Jest to funkcja, która jest placeholderem dla naszego argumentu i w odpowiednim momencie możemy ją zmusić do zwrócenia 
-wartości.
-\begin{verbatim}
-> (let ((x 2))
-    (setq d (delay (1+ x))))
-#S(DELAY ...)
-\end{verbatim}
-\pause
-Do ewaluacji delaya używamy funkcji force, która zmusza delay do obliczenia wartości, a w innych przypadkach działa jak identyczność.
-\begin{verbatim}
-> (force 'a)
-A
-> (force d)
-3
-\end{verbatim}
-\end{frame}
-
-\subsection{Dlambda}
-\begin{frame}[fragile]{}
-\begin{verbatim}
-(let ((count 0))
-  (lambda (msg)
-    (case msg
-      ((:inc)
-        (incf count))
-      ((:dec)
-        (decf count)))))
-Definiujemy funkcję, która kontroluje nam licznik.
-\end{verbatim}
-\pause
-Możemy chcieć stworzyć abstrakcję do tego typu lambd.
-\end{frame}
-
-\begin{frame}[fragile]{}
-\begin{verbatim}
-(defmacro! dlambda (&rest ds)
-  `(lambda (&rest ,g!args)
-     (case (car ,g!args)
-       ,@(mapcar
-           (lambda (d)
-             `(,(if (eq t (car d))
-                  t
-                  (list (car d)))
-               (apply (lambda ,@(cdr d))
-                      ,(if (eq t (car d))
-                         g!args
-                         `(cdr ,g!args)))))
-           ds))))
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Przykład dlambdy:
-\begin{verbatim}
-(setf (symbol-function 'count-test)
-    (let ((count 0))
-      (dlambda
-        (:reset () (setf count 0))
-        (:inc (n) (incf count n))
-        (:dec (n) (decf count n))
-        (:bound (lo hi)
-          (setf count
-            (min hi
-                 (max lo
-                      count)))))))
-\end{verbatim}
-\end{frame}
-
-\section{Metamakra}
-\begin{frame}{}
-\tableofcontents[currentsection,hideallsubsections]
-\end{frame}
-
-\subsection{Abbreviations}
-\begin{frame}[fragile]{}
-Funkcje z długimi nazwami są niewygodne:
-\begin{verbatim}
-(destructuring-bind ...)
-(multiple-value-bind ...)
-\end{verbatim}
-Pomocne makra:
-\begin{verbatim}
-(defmacro abbrev (short long)
-  `(defmacro ,short (&rest args)
-       `(,',long ,@args)))
-(defmacro abbrevs (&rest names)
-  `(progn
-       ,@(mapcar #'(lambda (pair)
-                          `(abbrev ,@pair))
-               	      (group names 2))))
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{}
-Przykład użycia:
-\begin{verbatim}
-(abbrevs dbind destructuring-bind
-	mvbind multiple-value-bind
-	mvsetq multiple-value-setq)
-\end{verbatim}
-\end{frame}
-
-\subsection{Properties}
-\begin{frame}[fragile]{}
-Gettery i settery pola obiektu:
-\begin{verbatim}
-(defmacro propmacro (propname)
-  ‘(defmacro ,propname (obj)
-       ‘(get ,obj ',',propname)))
-
-(defmacro propmacros (&rest props)
-  ‘(progn
-       ,@(mapcar #'(lambda (p) ‘(propmacro ,p))
-                      props)))
-
-(setf (color 'ball1) 'green)
-\end{verbatim}
-\pause
-Łatwa zmiana backendu przechowywania pól.
-\end{frame}
+\section{Obliczenia testowe}
 \end{document}
+
+Sprawozdanie:
+	1. krótki opis problemu
+	2. uwagi o algorytmie (źródło)
+	3. przykład działania algorytmu
+	4. źródło danycg, wyniki obliczeń i ich analiza
+	5. kod źródłowy
+	6. opis uruchomienia, przykładowe dane testowe
