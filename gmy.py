@@ -2,6 +2,7 @@ import optparse
 import pymprog
 from math import ceil
 from itertools import chain, combinations
+import time
 
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -11,10 +12,11 @@ def powerset(iterable):
 
 parser = optparse.OptionParser()
 parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False)
+parser.add_option('-t', '--time', dest='time', action='store_true', default=False)
 parser.add_option('-g', '--graph', dest='graph_file', metavar="FILE")
 options, args = parser.parse_args()
 
-class Dataset:
+class Dataset(object):
     def __init__(self, n, c, k, C, d=None):
         self.n = n
         self.c = c
@@ -85,6 +87,21 @@ class Dataset:
         f.write(output)
         f.close()
 
+class RandomDataset(Dataset):
+    def __init__(self, n=4, k=1):
+        import random
+        d = {}
+        c = {}
+        C = 0
+        for i in range(1, n+1):
+            if i != 1:
+                d[i] = random.randint(1, 100)
+                C += d[i]
+            for j in range(1, i):
+                c[j,i] = random.randint(1, 100)
+        
+        super(RandomDataset, self).__init__(n=n, c=c, d=d, C=C, k=k)
+
 
 d1 = Dataset(n = 16,
 c = {(1,2):509, (1,3):501, (1,4):312, (1,5):1019, (1,6):736, (1,7):656, 
@@ -131,11 +148,20 @@ d2 = Dataset(n=4,
         },
     d = {2: 4, 3: 5, 4: 12})
 
-data = d2
-try:
-    data.solve_vrp()
-except RuntimeError:
-    print 'Infeasible'
+for n in range(2, 20):
+    for k in range(1, 5):
+        start = time.clock()
+        data = RandomDataset(n=n, k=k)
+        try:
+            data.solve_vrp()
+        except RuntimeError:
+            #print 'Infeasible'
+            pass
+        end = time.clock()
+        if options.time: 
+            print n, k, end-start
 
-if options.graph_file:
-    data.graph(options.graph_file)
+        if options.graph_file:
+            data.graph('{0}_{1}_{2}.dot'.format(options.graph_file,n,k))
+
+
