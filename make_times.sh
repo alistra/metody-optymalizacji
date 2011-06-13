@@ -1,0 +1,1 @@
+cat times | awk 'BEGIN{i=0;print "=cluster;k = 1;k = 2;k = 3;k = 4"; print "colors=black,yellow,red,med_blue"; print "=table\n=norotate\nylabel=time (s)\nxlabel=n\nfont=Helvetica"}{a = a " " $3; i++;i=i%4}i==0{print $1, a;a=""}' | ./bargraph.pl -png -non-transparent /dev/stdin > times.png
