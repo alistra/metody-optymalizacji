@@ -39,7 +39,7 @@
 \begin{frame}
 \subsection{Uściślenie specyfikacji}
 \frametitle{Uściślenie specyfikacji}
-	Na $n$-wierzchołkowym grafie z wagami na krawędziach i wyróżnionym wierzchołkiem $S$, musimy znaleść $k$ prawie rozłącznych cykli (wszystkie spotykają się w wierzchołku $S$), pokrywających cały graf.
+	Na $n$-wierzchołkowym grafie z wagami na krawędziach i wyróżnionym wierzchołkiem $1$, musimy znaleść $k$ prawie rozłącznych cykli (wszystkie spotykają się w wierzchołku $1$), pokrywających cały graf.
 
 	$n$ - liczba odbiorców
 	$k$ - liczba ciężarówek
@@ -59,11 +59,33 @@
     \item $d_i$ - liczba pakunków do zawiezienia do odbiorcy $i$, gdzie $i \in N = \{2, \dots, n\}$
     \item $k$ - liczba ciężarówek
     \item $C$ - pojemność jednej ciężarówki
-    \item $c_{ij}$ - koszt dojazdu z miejsca $i$ do $j$, gdzie $i, j \in N \cup \{S\}$, a $S$ to wierzchołek startowy
+    \item $c_{ij}$ - koszt dojazdu z miejsca $i$ do $j$, gdzie $i, j \in N \cup \{1\}$, a $1$ to wierzchołek startowy
+\end{itemize}
+\end{frame}
+\subsection{Program całkowitoliczbowy}
+\begin{frame}
+\frametitle{Program całkowitoliczbowy}
+\begin{itemize}
+    \item[] $\displaystyle \min \sum_{e \in E} c_e x_e$
+    \item[] $\displaystyle \sum_{e=\{1,j\} \in E} x_e = 2k$
+    \item[] $\displaystyle \sum_{e=\{i,j\} \in E} x_e = 2 \;\;\; \forall i \in N$
+    \item[] $\displaystyle \sum_{e=\{i,j\} \in E, i \in S, j \not\in S} x_e \geq 2\lceil (\sum_{i\in S} d_i)/C \rceil \;\;\; \forall S \subset N, |S| > 1$
+    \item[] $\displaystyle 0 \leq x_e \leq 1 \;\;\; \forall e = \{i,j\} \in E, i,j \neq 1$
+    \item[] $\displaystyle 0 \leq x_e \leq 2 \;\;\; \forall e = \{1,j\} \in E$
+    \item[] $\displaystyle x_e \in Z \;\;\; \forall e \in E$
 \end{itemize}
 \end{frame}
 
 \subsection{Otrzymany wynik}
+\begin{frame}
+\frametitle{Otrzymany wynik}
+Otrzymany wynik składa się z:
+\begin{itemize}
+    \item $x_e \in \{0,1,2\}$ -- ile razy ciężarówka musi przejechać przez drogę $e$
+    \item $Y = \min \sum_{e \in E} c_e x_e$ -- kosztu minimalnej drogi
+    \item (opcjonalnie) obrazu grafu z zaznaczonymi drogami przejechanymi przez ciężarówki
+\end{itemize}
+\end{frame}
 \section{Niewielki Przyklad}
 \section{Algorytm}
 \begin{frame}
