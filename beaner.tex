@@ -1,0 +1,72 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[]{polski}
+\mode<beamer>{
+\usetheme{Frankfurt}
+\setbeamertemplate{navigation symbols}{}
+}
+\mode<handout>{
+\usepackage{pgfpages}
+\pgfpagesuselayout{4 on 1}[a4paper, border shrink=10mm, landscape]
+\usetheme{default}
+}
+
+\title{Capacitated Vehicular Routing Problem}
+\subtitle{Problem rozwożenia kontenerów}
+\author{Aleksander Balicki, Łukasz Zapart}
+\institute{Instytut Informatyki}
+\date{\today}
+
+\begin{document}
+\mode*
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+
+\section{Specyfikacja problemu}
+
+\begin{frame}
+\subsection{Oryginalna specyfikacja}
+\frametitle{Oryginalna specyfikacja}
+	Na placu znajduje sie pewna liczba kontenerów, które należy rozwieść samochodem do odbiorców. Samochód jednocześnie zabiera 3 kontenery. Zaplanować trasy samochodu, tak aby liczba przejechanych kilometrów była minimalna. (Jak rozwiązać ten problem, gdy mamy do dyspozycji kilka samochodów?)
+\end{frame}
+
+\begin{frame}
+\subsection{Uściślenie specyfikacji}
+\frametitle{Uściślenie specyfikacji}
+	Na $n$-wierzchołkowym grafie z wagami na krawędziach i wyróżnionym wierzchołkiem $S$, musimy znaleść $k$ prawie rozłącznych cykli (wszystkie spotykają się w wierzchołku $S$), pokrywających cały graf.
+
+	$n$ - liczba odbiorców
+	$k$ - liczba ciężarówek
+
+	Wymaga to założenia, że:
+	\begin{itemize}
+		\item żaden pakunek nie będzie podzielny,
+		\item każdy pakunek ma objętość mniejszą niż dowolna ciężarówka.
+	\end{itemize}
+\end{frame}
+
+\section{Model matematyczny}
+\subsection{Dane wejściowe}
+\subsection{Otrzymany wynik}
+\section{Niewielki Przyklad}
+\section{Algorytm}
+\begin{frame}
+\subsection{Opis algorytmu}
+\frametitle{Opis algorytmu}
+\end{frame}
+\section{Obliczenia testowe}
+\end{document}
+
+Sprawozdanie:
+	1. krótki opis problemu
+	2. uwagi o algorytmie (źródło)
+	3. przykład działania algorytmu
+	4. źródło danycg, wyniki obliczeń i ich analiza
+	5. kod źródłowy
+	6. opis uruchomienia, przykładowe dane testowe
