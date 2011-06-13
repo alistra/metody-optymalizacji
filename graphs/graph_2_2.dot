@@ -1,0 +1,4 @@
+graph g {
+1 -- 2 [label=31 color=black]
+2 [label="2 (14)"]
+}

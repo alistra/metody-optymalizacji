@@ -1,0 +1,7 @@
+graph g {
+1 -- 2 [label=38 color=red]
+1 -- 3 [label=74 color=red]
+2 -- 3 [label=19 color=red]
+2 [label="2 (29)"]
+3 [label="3 (9)"]
+}
