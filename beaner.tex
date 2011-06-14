@@ -29,15 +29,14 @@
 
 
 \section{Specyfikacja problemu}
-
-\begin{frame}
 \subsection{Oryginalna specyfikacja}
+\begin{frame}
 \frametitle{Oryginalna specyfikacja}
 	Na placu znajduje sie pewna liczba kontenerów, które należy rozwieść samochodem do odbiorców. Samochód jednocześnie zabiera 3 kontenery. Zaplanować trasy samochodu, tak aby liczba przejechanych kilometrów była minimalna. (Jak rozwiązać ten problem, gdy mamy do dyspozycji kilka samochodów?)
 \end{frame}
 
-\begin{frame}
 \subsection{Uściślenie specyfikacji}
+\begin{frame}
 \frametitle{Uściślenie specyfikacji}
 	Na $n$-wierzchołkowym grafie z wagami na krawędziach i wyróżnionym wierzchołkiem $1$, musimy znaleść $k$ prawie rozłącznych cykli (wszystkie spotykają się w wierzchołku $1$), pokrywających cały graf.
 
@@ -52,8 +51,8 @@
 \end{frame}
 
 \section{Model matematyczny}
-\begin{frame}
 \subsection{Dane wejściowe}
+\begin{frame}
 \frametitle{Dane wejściowe}
 \begin{itemize}
     \item $d_i$ - liczba pakunków do zawiezienia do odbiorcy $i$, gdzie $i \in N = \{2, \dots, n\}$
@@ -62,6 +61,7 @@
     \item $c_{ij}$ - koszt dojazdu z miejsca $i$ do $j$, gdzie $i, j \in N \cup \{1\}$, a $1$ to wierzchołek startowy
 \end{itemize}
 \end{frame}
+
 \subsection{Program całkowitoliczbowy}
 \begin{frame}
 \frametitle{Program całkowitoliczbowy}
@@ -86,19 +86,23 @@ Otrzymany wynik składa się z:
     \item (opcjonalnie) obrazu grafu z zaznaczonymi drogami przejechanymi przez ciężarówki
 \end{itemize}
 \end{frame}
-\section{Niewielki Przyklad}
-\section{Algorytm}
-\begin{frame}
-\subsection{Opis algorytmu}
-\frametitle{Opis algorytmu}
-\end{frame}
-\section{Obliczenia testowe}
-\end{document}
 
-Sprawozdanie:
-	1. krótki opis problemu
-	2. uwagi o algorytmie (źródło)
-	3. przykład działania algorytmu
-	4. źródło danycg, wyniki obliczeń i ich analiza
-	5. kod źródłowy
-	6. opis uruchomienia, przykładowe dane testowe
+\section{Niewielki Przyklad}
+\begin{frame}
+\includegraphics[scale=0.4]{graphs/example.png}
+\end{frame}
+
+\section{Algorytm}
+\subsection{Opis algorytmu}
+\begin{frame}
+\frametitle{Opis algorytmu}
+The method solves the linear program without the integer constraint using the regular simplex algorithm. When an optimal solution is obtained, and this solution has a non-integer value for a variable that is supposed to be integer, a cutting plane algorithm is used to find further linear constraints which are satisfied by all feasible integer points but violated by the current fractional solution. If such an inequality is found, it is added to the linear program, such that resolving it will yield a different solution which is hopefully "less fractional". This process is repeated until either an integer solution is found (which is then known to be optimal) or until no more cutting planes are found.
+At this point, the branch and bound part of the algorithm is started. The problem is split into two versions, one with the additional constraint that the variable is greater than or equal to the next integer greater than the intermediate result, and one where this variable is less than or equal to the next lesser integer. In this way new variables are introduced in the basis according to the number of basic variables that are non-integers in the intermediate solution but which are integers according to the original constraints. The new linear programs are then solved using the simplex method and the process repeats until a solution satisfying all the integer constraints is found. During the branch and bound process, further cutting planes can be separated, which may be either global cuts, i.e., valid for all feasible integer solutions, or local cuts, meaning that they are satisfied by all solutions fulfilling the side constraints from the currently considered branch and bound subtree.
+\end{frame}
+
+\section{Obliczenia testowe}
+\begin{frame}
+\includegraphics[scale=0.4]{times.png}
+\end{frame}
+
+\end{document}
